@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Monitoramento de Energia com ESP32</title>
     <style>
+        /* Reset CSS */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
             color: #fff;
             min-height: 100vh;
@@ -24,6 +25,7 @@
             margin: 0 auto;
         }
         
+        /* Header */
         header {
             text-align: center;
             margin-bottom: 30px;
@@ -37,6 +39,34 @@
             font-size: 2.5rem;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Status */
+        .esp32-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .status-connected {
+            background: #4CAF50;
+            box-shadow: 0 0 10px #4CAF50;
+        }
+        
+        .status-disconnected {
+            background: #f44336;
+            box-shadow: 0 0 10px #f44336;
         }
         
         .status-energia {
@@ -64,6 +94,7 @@
             font-weight: bold;
         }
         
+        /* Comodos */
         .comodos {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -102,6 +133,7 @@
             color: #4CAF50;
         }
         
+        /* Buttons */
         .botoes-controle {
             display: flex;
             justify-content: space-between;
@@ -160,6 +192,7 @@
             margin: 30px 0;
         }
         
+        /* Chart */
         .grafico-container {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
@@ -211,6 +244,7 @@
             font-size: 0.9rem;
         }
         
+        /* Chatbot */
         .chatbot-container {
             position: fixed;
             bottom: 20px;
@@ -327,6 +361,7 @@
             justify-content: center;
         }
         
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -406,33 +441,7 @@
             justify-content: flex-end;
         }
         
-        .esp32-status {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 15px 0;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-        }
-        
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-        
-        .status-connected {
-            background: #4CAF50;
-            box-shadow: 0 0 10px #4CAF50;
-        }
-        
-        .status-disconnected {
-            background: #f44336;
-            box-shadow: 0 0 10px #f44336;
-        }
-        
+        /* Responsive */
         @media (max-width: 768px) {
             .comodos {
                 grid-template-columns: 1fr;
@@ -479,7 +488,7 @@
         </header>
         
         <div class="comodos">
-            <div id="sala" class="comodo energia-baixa">
+            <div id="sala" class="comodo">
                 <h2>Sala</h2>
                 <p>Consumo: <span class="consumo">0</span>W</p>
                 <p>Status: <span class="status">Desligado</span></p>
@@ -490,7 +499,7 @@
                 </div>
             </div>
             
-            <div id="quarto" class="comodo energia-baixa">
+            <div id="quarto" class="comodo">
                 <h2>Quarto</h2>
                 <p>Consumo: <span class="consumo">0</span>W</p>
                 <p>Status: <span class="status">Desligado</span></p>
@@ -501,7 +510,7 @@
                 </div>
             </div>
             
-            <div id="cozinha" class="comodo energia-media">
+            <div id="cozinha" class="comodo">
                 <h2>Cozinha</h2>
                 <p>Consumo: <span class="consumo">0</span>W</p>
                 <p>Status: <span class="status">Desligado</span></p>
@@ -512,7 +521,7 @@
                 </div>
             </div>
             
-            <div id="banheiro" class="comodo energia-baixa">
+            <div id="banheiro" class="comodo">
                 <h2>Banheiro</h2>
                 <p>Consumo: <span class="consumo">0</span>W</p>
                 <p>Status: <span class="status">Desligado</span></p>
@@ -523,7 +532,7 @@
                 </div>
             </div>
             
-            <div id="quarto2" class="comodo energia-baixa">
+            <div id="quarto2" class="comodo">
                 <h2>Quarto 2</h2>
                 <p>Consumo: <span class="consumo">0</span>W</p>
                 <p>Status: <span class="status">Desligado</span></p>
@@ -534,7 +543,7 @@
                 </div>
             </div>
             
-            <div id="garagem" class="comodo energia-baixa">
+            <div id="garagem" class="comodo">
                 <h2>Garagem</h2>
                 <p>Consumo: <span class="consumo">0</span>W</p>
                 <p>Status: <span class="status">Desligado</span></p>
@@ -667,48 +676,12 @@
         class SistemaEnergia {
             constructor() {
                 this.dispositivos = {
-                    sala: {
-                        nome: 'Sala',
-                        consumo: 0,
-                        status: false,
-                        limite: 200,
-                        consumoBase: 120
-                    },
-                    quarto: {
-                        nome: 'Quarto',
-                        consumo: 0,
-                        status: false,
-                        limite: 150,
-                        consumoBase: 80
-                    },
-                    cozinha: {
-                        nome: 'Cozinha',
-                        consumo: 0,
-                        status: false,
-                        limite: 600,
-                        consumoBase: 400
-                    },
-                    banheiro: {
-                        nome: 'Banheiro',
-                        consumo: 0,
-                        status: false,
-                        limite: 100,
-                        consumoBase: 60
-                    },
-                    quarto2: {
-                        nome: 'Quarto 2',
-                        consumo: 0,
-                        status: false,
-                        limite: 150,
-                        consumoBase: 80
-                    },
-                    garagem: {
-                        nome: 'Garagem',
-                        consumo: 0,
-                        status: false,
-                        limite: 100,
-                        consumoBase: 50
-                    }
+                    sala: { nome: 'Sala', consumo: 0, status: false, limite: 200, consumoBase: 120 },
+                    quarto: { nome: 'Quarto', consumo: 0, status: false, limite: 150, consumoBase: 80 },
+                    cozinha: { nome: 'Cozinha', consumo: 0, status: false, limite: 600, consumoBase: 400 },
+                    banheiro: { nome: 'Banheiro', consumo: 0, status: false, limite: 100, consumoBase: 60 },
+                    quarto2: { nome: 'Quarto 2', consumo: 0, status: false, limite: 150, consumoBase: 80 },
+                    garagem: { nome: 'Garagem', consumo: 0, status: false, limite: 100, consumoBase: 50 }
                 };
                 
                 this.consumoTotal = 0;
