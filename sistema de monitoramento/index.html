@@ -1,0 +1,227 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Monitoramento de Energia com ESP32</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Monitoramento de Energia com ESP32</h1>
+            <p>Controle e monitore o consumo de energia em sua casa</p>
+            
+            <div class="esp32-status">
+                <div class="status-indicator status-disconnected" id="esp32-indicator"></div>
+                <span id="esp32-status-text">ESP32: Desconectado</span>
+            </div>
+            
+            <div class="status-energia">
+                <div class="status-item">
+                    <h3>Consumo Total</h3>
+                    <div class="valor" id="consumo-total">0W</div>
+                </div>
+                <div class="status-item">
+                    <h3>Status da Energia</h3>
+                    <div class="valor" id="status-energia">Normal</div>
+                </div>
+                <div class="status-item">
+                    <h3>Custo Estimado</h3>
+                    <div class="valor" id="custo-estimado">R$0,00</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="comodos">
+            <div id="sala" class="comodo">
+                <h2>Sala</h2>
+                <p>Consumo: <span class="consumo">0</span>W</p>
+                <p>Status: <span class="status">Desligado</span></p>
+                <div class="botoes-controle">
+                    <button class='on' onclick="controlarDispositivo('sala', 'on')">Ligar</button>
+                    <button class='off' onclick="controlarDispositivo('sala', 'off')">Desligar</button>
+                    <button class="botao-controle" onclick="abrirModalRelatorio('sala')">Relatório</button>
+                </div>
+            </div>
+            
+            <div id="quarto" class="comodo">
+                <h2>Quarto</h2>
+                <p>Consumo: <span class="consumo">0</span>W</p>
+                <p>Status: <span class="status">Desligado</span></p>
+                <div class="botoes-controle">
+                    <button class='on' onclick="controlarDispositivo('quarto', 'on')">Ligar</button>
+                    <button class='off' onclick="controlarDispositivo('quarto', 'off')">Desligar</button>
+                    <button class="botao-controle" onclick="abrirModalRelatorio('quarto')">Relatório</button>
+                </div>
+            </div>
+            
+            <div id="cozinha" class="comodo">
+                <h2>Cozinha</h2>
+                <p>Consumo: <span class="consumo">0</span>W</p>
+                <p>Status: <span class="status">Desligado</span></p>
+                <div class="botoes-controle">
+                    <button class='on' onclick="controlarDispositivo('cozinha', 'on')">Ligar</button>
+                    <button class='off' onclick="controlarDispositivo('cozinha', 'off')">Desligar</button>
+                    <button class="botao-controle" onclick="abrirModalRelatorio('cozinha')">Relatório</button>
+                </div>
+            </div>
+            
+            <div id="banheiro" class="comodo">
+                <h2>Banheiro</h2>
+                <p>Consumo: <span class="consumo">0</span>W</p>
+                <p>Status: <span class="status">Desligado</span></p>
+                <div class="botoes-controle">
+                    <button class='on' onclick="controlarDispositivo('banheiro', 'on')">Ligar</button>
+                    <button class='off' onclick="controlarDispositivo('banheiro', 'off')">Desligar</button>
+                    <button class="botao-controle" onclick="abrirModalRelatorio('banheiro')">Relatório</button>
+                </div>
+            </div>
+            
+            <div id="quarto2" class="comodo">
+                <h2>Quarto 2</h2>
+                <p>Consumo: <span class="consumo">0</span>W</p>
+                <p>Status: <span class="status">Desligado</span></p>
+                <div class="botoes-controle">
+                    <button class='on' onclick="controlarDispositivo('quarto2', 'on')">Ligar</button>
+                    <button class='off' onclick="controlarDispositivo('quarto2', 'off')">Desligar</button>
+                    <button class="botao-controle" onclick="abrirModalRelatorio('quarto2')">Relatório</button>
+                </div>
+            </div>
+            
+            <div id="garagem" class="comodo">
+                <h2>Garagem</h2>
+                <p>Consumo: <span class="consumo">0</span>W</p>
+                <p>Status: <span class="status">Desligado</span></p>
+                <div class="botoes-controle">
+                    <button class='on' onclick="controlarDispositivo('garagem', 'on')">Ligar</button>
+                    <button class='off' onclick="controlarDispositivo('garagem', 'off')">Desligar</button>
+                    <button class="botao-controle" onclick="abrirModalRelatorio('garagem')">Relatório</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grafico-container">
+            <h2>Consumo por Cômodo</h2>
+            <div class="grafico" id="grafico"></div>
+        </div>
+        
+        <div class="botoes-gerais">
+            <button id="btn-desligar" class="botao-controle" onclick="controlarTodos('off')">Desligar Todos</button>
+            <button id="btn-relatorio" class="botao-controle" onclick="abrirModalRelatorio('todos')">Relatório Geral</button>
+            <button id="btn-email" class="botao-controle" onclick="abrirModalEmail()">Enviar Relatório por Email</button>
+            <button id="btn-esp32" class="botao-controle" onclick="abrirModalESP32()">Configurar ESP32</button>
+        </div>
+    </div>
+    
+    <button class="chatbot-toggle" id="chatbot-toggle" onclick="toggleChatbot()">💬</button>
+    
+    <div class="chatbot-container" id="chatbot-container" style="display: none;">
+        <div class="chatbot-header">
+            <h3>Assistente de Energia</h3>
+            <button class="chatbot-close" onclick="toggleChatbot()">×</button>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages">
+            <div class="message bot-message">Olá! Sou seu assistente de energia. Posso ajudar com dicas de economia, informações sobre consumo e muito mais. Como posso ajudar?</div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chat-input" placeholder="Digite sua mensagem..." onkeypress="handleChatKeypress(event)">
+            <button onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+    
+    <div class="modal" id="esp32-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Configuração do ESP32</h2>
+                <button class="modal-close" onclick="fecharModal('esp32-modal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="esp32-ip">Endereço IP do ESP32</label>
+                    <input type="text" id="esp32-ip" placeholder="192.168.1.100">
+                </div>
+                <div class="form-group">
+                    <label for="esp32-porta">Porta WebSocket</label>
+                    <input type="number" id="esp32-porta" value="81">
+                </div>
+                <div class="form-group">
+                    <label for="backend-url">URL do Backend (opcional)</label>
+                    <input type="text" id="backend-url" placeholder="https://seu-backend.com/api">
+                </div>
+                <div class="form-group">
+                    <label>Status da Conexão</label>
+                    <div id="esp32-connection-status">Não conectado</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="botao-controle" onclick="conectarESP32()">Conectar</button>
+                <button class="botao-controle off" onclick="desconectarESP32()">Desconectar</button>
+                <button class="botao-controle off" onclick="fecharModal('esp32-modal')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="email-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Enviar Relatório por Email</h2>
+                <button class="modal-close" onclick="fecharModal('email-modal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="email-form-container">
+                    <div class="form-group">
+                        <label for="email-destinatario">Email do Destinatário</label>
+                        <input type="email" id="email-destinatario" placeholder="exemplo@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email-assunto">Assunto</label>
+                        <input type="text" id="email-assunto" value="Relatório de Consumo de Energia" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email-mensagem">Mensagem</label>
+                        <textarea id="email-mensagem" placeholder="Adicione uma mensagem personalizada (opcional)"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="email-tipo">Tipo de Relatório</label>
+                        <select id="email-tipo" required>
+                            <option value="todos">Relatório Geral</option>
+                            <option value="sala">Sala</option>
+                            <option value="quarto">Quarto</option>
+                            <option value="cozinha">Cozinha</option>
+                            <option value="banheiro">Banheiro</option>
+                            <option value="quarto2">Quarto 2</option>
+                            <option value="garagem">Garagem</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="email-response"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="botao-controle" onclick="enviarEmail()">Enviar Email</button>
+                <button class="botao-controle off" onclick="fecharModal('email-modal')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="relatorio-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="relatorio-titulo">Relatório de Consumo</h2>
+                <button class="modal-close" onclick="fecharModal('relatorio-modal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="relatorio-conteudo"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="botao-controle" onclick="imprimirRelatorio()">Imprimir</button>
+                <button class="botao-controle" onclick="baixarRelatorio()">Baixar PDF</button>
+                <button class="botao-controle off" onclick="fecharModal('relatorio-modal')">Fechar</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
